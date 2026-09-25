@@ -6,8 +6,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
-from langchain.chains import RetrievalQA
-
+from langchain_classic.chains import RetrievalQA
 st.set_page_config(page_title="PDF RAG Assistant", page_icon="📄", layout="wide")
 st.title("📄 PDF RAG Assistant")
 st.caption("Upload a PDF, then ask questions grounded in its content | Powered by Groq + FAISS")
