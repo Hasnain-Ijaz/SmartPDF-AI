@@ -144,8 +144,6 @@ elif not st.session_state.pdf_processed:
     st.info("Upload a PDF and click 'Process Document' in the sidebar.")
     with st.expander("How to use"):
         st.markdown(
-            "1. Get a Groq API Key from https://console.groq.com\n\n"
-            "2. Add it in Streamlit Cloud Secrets as GROQ_API_KEY\n\n"
-            "3. Upload a PDF and click Process Document\n\n"
-            "4. Ask questions in the chat input"
+            "1. Upload a PDF and click Process Document\n\n"
+            "2. Ask questions in the chat input"
         )
