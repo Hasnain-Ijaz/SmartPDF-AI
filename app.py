@@ -93,7 +93,7 @@ if uploaded_file and process_button and not st.session_state.pdf_processed:
                 temperature=0.1
             )
 
-            # CHANGE 1: Strict prompt — sirf PDF se jawab do
+            # Strict prompt: sirf context se jawab do, warna specific message do
             prompt_template = """You are a PDF question-answering assistant.
 
 STRICT RULES:
@@ -116,13 +116,10 @@ Answer:"""
                 input_variables=["context", "question"]
             )
 
-            # CHANGE 2: Similarity threshold — sirf relevant chunks return karo
+            # Threshold hata di — sirf top-k chunks return karo
+            # (Prompts hi LLM ko strict rakhenge)
             retriever = vectorstore.as_retriever(
-                search_type="similarity_score_threshold",
-                search_kwargs={
-                    "k": 4,
-                    "score_threshold": 0.35
-                }
+                search_kwargs={"k": 4}
             )
 
             qa_chain = RetrievalQA.from_chain_type(
@@ -160,7 +157,7 @@ if st.session_state.pdf_processed and st.session_state.qa_chain:
                     answer = result["result"]
                     st.markdown(answer)
 
-                    # CHANGE 3: Sources sirf tab dikhao jab answer PDF se aaya ho
+                    # Sources sirf tab dikhao jab answer PDF se aaya ho
                     not_found_message = "This information is not present in the uploaded PDF."
                     has_answer = not_found_message.lower() not in answer.lower()
 
