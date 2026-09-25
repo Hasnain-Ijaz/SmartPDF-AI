@@ -162,7 +162,7 @@ if st.session_state.pdf_processed and st.session_state.qa_chain:
                     has_answer = not_found_message.lower() not in answer.lower()
 
                     if not has_answer:
-                        st.info("ℹ️ Ye jawab PDF mein nahi mila. Aap koi doosra sawal pooch sakte hain.")
+                        st.info("ℹ️ This information is not present in the uploaded PDF.")
                     elif result.get("source_documents"):
                         with st.expander("View sources"):
                             for i, doc in enumerate(result["source_documents"], 1):
