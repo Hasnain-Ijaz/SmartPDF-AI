@@ -9,7 +9,7 @@ from langchain_groq import ChatGroq
 from langchain_classic.chains import RetrievalQA
 st.set_page_config(page_title="PDF RAG Assistant", page_icon="📄", layout="wide")
 st.title("📄 PDF RAG Assistant")
-st.caption("Upload a PDF, then ask questions grounded in its content | Powered by Groq + FAISS")
+st.caption("Upload a PDF, then ask questions grounded in its content | Powered by Groq + FAISS | Presented by Hasnain")
 
 def get_groq_api_key():
     try:
@@ -87,7 +87,7 @@ if uploaded_file and process_button and not st.session_state.pdf_processed:
             st.write("Building QA chain...")
             llm = ChatGroq(
                 groq_api_key=GROQ_API_KEY,
-                model_name="llama-3.1-8b-instant",
+                model_name="openai/gpt-oss-120b",
                 temperature=0.1
             )
 
