@@ -7,6 +7,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 from langchain_classic.chains import RetrievalQA
+from langchain_core.prompts import PromptTemplate
+
 st.set_page_config(page_title="PDF RAG Assistant", page_icon="📄", layout="wide")
 st.title("📄 PDF RAG Assistant")
 st.caption("Upload a PDF, then ask questions grounded in its content | Powered by Groq + FAISS | Presented by Hasnain")
@@ -91,11 +93,44 @@ if uploaded_file and process_button and not st.session_state.pdf_processed:
                 temperature=0.1
             )
 
+            # CHANGE 1: Strict prompt — sirf PDF se jawab do
+            prompt_template = """You are a PDF question-answering assistant.
+
+STRICT RULES:
+1. Answer ONLY using the information provided in the context below.
+2. If the answer is NOT present in the context, respond with EXACTLY this sentence:
+   "This information is not present in the uploaded PDF."
+3. Do NOT use any outside knowledge.
+4. Do NOT make up answers.
+5. If the context is partially relevant, answer only what is supported.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+
+            PROMPT = PromptTemplate(
+                template=prompt_template,
+                input_variables=["context", "question"]
+            )
+
+            # CHANGE 2: Similarity threshold — sirf relevant chunks return karo
+            retriever = vectorstore.as_retriever(
+                search_type="similarity_score_threshold",
+                search_kwargs={
+                    "k": 4,
+                    "score_threshold": 0.35
+                }
+            )
+
             qa_chain = RetrievalQA.from_chain_type(
                 llm=llm,
                 chain_type="stuff",
-                retriever=vectorstore.as_retriever(search_kwargs={"k": 4}),
-                return_source_documents=True
+                retriever=retriever,
+                return_source_documents=True,
+                chain_type_kwargs={"prompt": PROMPT}
             )
             st.session_state.qa_chain = qa_chain
             st.session_state.pdf_processed = True
@@ -125,7 +160,13 @@ if st.session_state.pdf_processed and st.session_state.qa_chain:
                     answer = result["result"]
                     st.markdown(answer)
 
-                    if result.get("source_documents"):
+                    # CHANGE 3: Sources sirf tab dikhao jab answer PDF se aaya ho
+                    not_found_message = "This information is not present in the uploaded PDF."
+                    has_answer = not_found_message.lower() not in answer.lower()
+
+                    if not has_answer:
+                        st.info("ℹ️ Ye jawab PDF mein nahi mila. Aap koi doosra sawal pooch sakte hain.")
+                    elif result.get("source_documents"):
                         with st.expander("View sources"):
                             for i, doc in enumerate(result["source_documents"], 1):
                                 page = doc.metadata.get("page", "unknown")
